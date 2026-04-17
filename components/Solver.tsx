@@ -5,6 +5,7 @@ import { BoardPicker } from "./BoardPicker";
 import { RangeGrid } from "./RangeGrid";
 import { BetSizingEditor } from "./BetSizingEditor";
 import { StrategyView } from "./StrategyView";
+import { Trainer } from "./Trainer";
 import { cardStr } from "@/lib/cards";
 import { emptyGrid, gridToWeights, parseRangeText, type Grid } from "@/lib/ranges";
 import type { BetSizing, SolveResult } from "@/lib/solver/types";
@@ -41,6 +42,7 @@ export default function Solver() {
   const [result, setResult] = useState<SolveResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
+  const [tab, setTab] = useState<"strategy" | "trainer">("strategy");
   const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
@@ -259,11 +261,36 @@ export default function Solver() {
           </div>
         )}
         {result && (
-          <StrategyView
-            strategies={result.strategies}
-            rootEv={result.rootEv}
-            iterations={result.iterations}
-          />
+          <div className="space-y-4">
+            <div className="inline-flex rounded-lg bg-ink-100 p-0.5">
+              {(["strategy", "trainer"] as const).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setTab(k)}
+                  className={`px-3 h-7 text-[12px] rounded-md font-medium transition-colors ${
+                    tab === k ? "bg-white shadow-soft text-ink-900" : "text-ink-500 hover:text-ink-700"
+                  }`}
+                >
+                  {k === "strategy" ? "Strategy" : "Trainer"}
+                </button>
+              ))}
+            </div>
+            {tab === "strategy" ? (
+              <StrategyView
+                strategies={result.strategies}
+                rootEv={result.rootEv}
+                iterations={result.iterations}
+              />
+            ) : (
+              <Trainer
+                strategies={result.strategies}
+                rangeOop={gridToWeights(oopGrid)}
+                rangeIp={gridToWeights(ipGrid)}
+                board={(board.filter((c) => c != null) as number[])}
+              />
+            )}
+          </div>
         )}
       </div>
     </div>
