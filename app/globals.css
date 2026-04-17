@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background: #ffffff;
+  color: #0a0a0a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card-face {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.04);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 13px;
+  transition: transform 120ms ease, background 120ms ease, color 120ms ease, border-color 120ms ease;
+  border: 1px solid transparent;
+  user-select: none;
+}
+.btn:active { transform: translateY(1px); }
+
+.btn-primary { background: #0a0a0a; color: #ffffff; }
+.btn-primary:hover { background: #1a1a1a; }
+.btn-primary:disabled { background: #9a9a9a; cursor: not-allowed; }
+
+.btn-ghost { background: #ffffff; color: #0a0a0a; border-color: #e5e5e5; }
+.btn-ghost:hover { background: #fafafa; border-color: #c9c9c9; }
+
+.field-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6b6b6b;
+}
+
+.input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.input:focus { border-color: #0a0a0a; box-shadow: 0 0 0 3px rgba(0,0,0,0.06); }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #f4f4f4;
+  font-size: 12px;
+  color: #2a2a2a;
+  font-variant-numeric: tabular-nums;
+}
+
+.section {
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.num { font-variant-numeric: tabular-nums; }
+
+.suit-s { color: #0a0a0a; }
+.suit-h { color: #c0152f; }
+.suit-d { color: #1e48c0; }
+.suit-c { color: #127a4c; }
