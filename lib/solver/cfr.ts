@@ -250,11 +250,10 @@ function cfrPass(
   const actionUtils: Float32Array[] = new Array(nActions);
 
   if (node.player === updater) {
-    // Updater decides. Split reachP by strategy, recurse each action.
+    // Updater decides. Own reach is not baked into utilities (util is conditional on combo),
+    // so we recurse with reachP unchanged and weight by strategy afterwards.
     for (let a = 0; a < nActions; a++) {
-      const newReachP = new Float32Array(COMBO_COUNT);
-      for (let c = 0; c < COMBO_COUNT; c++) newReachP[c] = reachP[c] * strategy[c * nActions + a];
-      actionUtils[a] = cfrPass(ctx, node.children[a], scores, nValid, newReachP, reachO, updater, iter);
+      actionUtils[a] = cfrPass(ctx, node.children[a], scores, nValid, reachP, reachO, updater, iter);
     }
     for (let c = 0; c < COMBO_COUNT; c++) {
       let u = 0;
@@ -274,31 +273,22 @@ function cfrPass(
     }
     node.visits++;
   } else {
-    // Opponent decides. Split reachO by strategy, recurse each action. Accumulate util for updater.
+    // Opponent decides. Their per-combo strategy is multiplied into reachO when recursing;
+    // the returned action utilities are already reach-weighted, so the node utility is just their SUM.
     for (let a = 0; a < nActions; a++) {
       const newReachO = new Float32Array(COMBO_COUNT);
       for (let c = 0; c < COMBO_COUNT; c++) newReachO[c] = reachO[c] * strategy[c * nActions + a];
       actionUtils[a] = cfrPass(ctx, node.children[a], scores, nValid, reachP, newReachO, updater, iter);
     }
-    // For updater's utility per combo, sum over opponent's per-combo strategies — but this is a simplification.
-    // In vectorized CFR, we need: for each updater combo c_u, sum over opp actions of opp_strategy_sum * util_a(c_u).
-    // We approximate here by summing action utils weighted by opp mean action frequency across their own range
-    // (this is biased but standard in many implementations; for unbiased we'd pass full opp strategy vector upstream).
-    const meanStrat = new Float32Array(nActions);
-    let totalReachO = 0;
-    for (let c = 0; c < COMBO_COUNT; c++) totalReachO += reachO[c];
-    if (totalReachO > 0) {
-      for (let c = 0; c < COMBO_COUNT; c++) {
-        const w = reachO[c] / totalReachO;
-        if (w <= 0) continue;
-        for (let a = 0; a < nActions; a++) meanStrat[a] += w * strategy[c * nActions + a];
-      }
-    }
     for (let c = 0; c < COMBO_COUNT; c++) {
       let u = 0;
-      for (let a = 0; a < nActions; a++) u += meanStrat[a] * actionUtils[a][c];
+      for (let a = 0; a < nActions; a++) u += actionUtils[a][c];
       nodeUtil[c] = u;
     }
+    // Track strategy-sum and regret for opponent too, so both players get averaged strategies.
+    // Regret update needs util per opponent combo — we don't have that vectorized here.
+    // Instead, we rely on alternating the updater each iteration; when opp becomes updater,
+    // their regrets/strategySum are updated via the `node.player === updater` branch.
   }
 
   return nodeUtil;
