@@ -25,7 +25,6 @@ export class SolverContext {
   cumCard: Float64Array[] = Array.from({ length: 52 }, () => new Float64Array(COMBO_COUNT + 1));
   combosA = new Int8Array(COMBO_COUNT);
   combosB = new Int8Array(COMBO_COUNT);
-  scores = new Int32Array(COMBO_COUNT);
   iter = 0;
 
   constructor(input: SolveInput) {
@@ -313,7 +312,6 @@ export function solve(
     // Sample a runout
     const board = sampleRunout(input.board, 0);
     const scores = scoreAllCombos(board);
-    ctx.scores = scores;
     const nValid = sortByScore(scores, ctx.sortedIdx);
 
     // Alternate updater
